@@ -1,0 +1,9 @@
+services:
+  worker:
+    container_name: hello-headless-blender-worker
+    image: hello-headless-blender-worker
+    platform: linux/amd64
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    tty: true
