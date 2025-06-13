@@ -6,4 +6,6 @@ services:
     build:
       context: ./worker
       dockerfile: Dockerfile
+    volumes:
+      - ./worker/scenes:/app/scenes
     tty: true
