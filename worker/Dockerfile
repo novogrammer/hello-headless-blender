@@ -4,11 +4,12 @@ FROM ubuntu:22.04 AS blender-installer
 RUN apt-get update
 RUN apt-get install -y xz-utils
 
-RUN mkdir /tmp/blender
-WORKDIR /tmp/blender
+RUN mkdir -p /workspace/blender
+WORKDIR /workspace
 
-COPY ./downloads/blender-4.4.3-linux-x64.tar.xz /tmp/blender/
-RUN tar -xvf "./blender-4.4.3-linux-x64.tar.xz"
+ARG ARCHIVE_FILE="blender-4.4.3-linux-x64.tar.xz"
+COPY ./downloads/${ARCHIVE_FILE} /workspace/
+RUN tar -xvf "./${ARCHIVE_FILE}" -C blender --strip-components 1
 
 
 FROM ubuntu:22.04 as runtime
@@ -28,10 +29,10 @@ RUN apt-get install -y libx11-dev libxxf86vm-dev libxcursor-dev libxi-dev libxra
 RUN apt-get install -y libwayland-dev wayland-protocols libxkbcommon-dev libdbus-1-dev linux-libc-dev
 
 # blender本体のインストール
-ENV BLENDER_DIR="/usr/local/blender"
-ENV BLENDER_PATH="${BLENDER_DIR}/blender"
-ENV BLENDER_PYTHON_PATH="${BLENDER_DIR}/4.4/python/bin/python3.11"
-COPY --from=blender-installer /tmp/blender/blender-4.4.3-linux-x64 ${BLENDER_DIR}
+ARG BLENDER_DIR="/usr/local/blender"
+# ENV BLENDER_PATH="${BLENDER_DIR}/blender"
+# ENV BLENDER_PYTHON_PATH="${BLENDER_DIR}/4.4/python/bin/python3.11"
+COPY --from=blender-installer /workspace/blender ${BLENDER_DIR}
 ENV PATH="${BLENDER_DIR}:${PATH}"
 
 # pythonのセットアップ
