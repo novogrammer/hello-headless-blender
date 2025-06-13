@@ -15,12 +15,15 @@ COPY ./downloads/${ARCHIVE_FILE} /workspace/
 RUN tar -xvf "./${ARCHIVE_FILE}" -C blender --strip-components 1
 
 
-FROM ubuntu:22.04 as runtime
+FROM ubuntu:22.04 AS runtime
 
 # RUN ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 ENV TZ=Asia/Tokyo
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y \
+    tzdata \
     glibc-source \
     libsm6 libxext6 \
     libx11-dev libxxf86vm-dev libxcursor-dev libxi-dev libxrandr-dev libxinerama-dev libegl-dev \
