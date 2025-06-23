@@ -1,16 +1,9 @@
-argon2-cffi==25.1.0
-argon2-cffi-bindings==21.2.0
 bpy==4.4.0
 certifi==2025.6.15
-cffi==1.17.1
 charset-normalizer==3.4.2
 Cython==3.1.2
 idna==3.10
-minio==7.2.15
 numpy==1.26.4
-pycparser==2.22
-pycryptodome==3.23.0
 requests==2.32.4
-typing_extensions==4.14.0
 urllib3==2.5.0
 zstandard==0.23.0
