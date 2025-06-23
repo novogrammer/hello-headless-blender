@@ -75,6 +75,7 @@ new Worker(
   { connection },
 );
 
+// TODO: backendイメージで追加する
 {
   const queue=new Queue("job_queue",{
     connection,
