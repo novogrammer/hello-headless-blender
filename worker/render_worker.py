@@ -7,7 +7,8 @@ import os
 
 def main(output_dir):
 
-    blender_filepath=os.path.abspath("./scenes/simple.blend")
+    # blender_filepath=os.path.abspath("./scenes/simple.blend")
+    blender_filepath=os.path.abspath("./scenes/suzanne.blend")
 
     bpy.ops.wm.open_mainfile(filepath=blender_filepath)
 
