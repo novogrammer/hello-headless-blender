@@ -8,7 +8,9 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./worker/scenes:/app/scenes
-    tty: true
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     depends_on:
       redis:
         condition: service_healthy
