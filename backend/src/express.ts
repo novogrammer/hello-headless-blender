@@ -24,29 +24,34 @@ serverAdapter.setBasePath('/queues');
 createBullBoard({ queues: [new BullMQAdapter(jobQueue)], serverAdapter });
 app.use('/queues', serverAdapter.getRouter());
 
-app.post('/jobs', async (req, res) => {
-  const jobId = makeJobId();
-  await jobQueue.add('mytask', req.body ?? {}, {
-    removeOnComplete: { count: 1000 },
-    jobId,
-  });
-  res.json({ jobId });
-});
-
-app.post('/image-jobs', upload.single('image'), async (req, res) => {
+app.post('/jobs', upload.single('image'), async (req, res) => {
   if (!req.file) {
-    res.status(400).send('no file');
+    res.status(400).json({
+      ok:false,
+      message:'no file',
+    });
+    return;
+  }
+  if(!req.body.name){
+    res.status(400).json({
+      ok:false,
+      message:'no name',
+    });
     return;
   }
   const jobId = makeJobId();
   const client = await clientPromise;
   const objectKey = `${jobId}/${req.file.originalname}`;
+  const {name} = req.body;
   await client.putObject(MINIO_BUCKET_NAME, objectKey, req.file.buffer);
-  await jobQueue.add('mytask', { objectKey }, {
+  await jobQueue.add('mytask', { objectKey, name }, {
     removeOnComplete: { count: 1000 },
     jobId,
   });
-  res.json({ jobId });
+  res.json({
+    ok:true,
+    jobId,
+  });
 });
 
 const port = Number(process.env.PORT) || 4000;
