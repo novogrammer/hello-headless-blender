@@ -13,7 +13,7 @@ export const MINIO_BUCKET_NAME = "blender";
 
 
 
-async function ensureBucketAsync(bucket) {
+async function ensureBucketAsync(bucket:string) {
   const exists = await client.bucketExists(bucket);
   if (!exists) {
     await client.makeBucket(bucket, 'us-east-1');

@@ -29,7 +29,7 @@ new Worker(
 
     try{
 
-      await new Promise((resolve)=>{
+      await new Promise<void>((resolve)=>{
         const pythonWorker = spawn("python",[
           "render_worker.py",
           temp,

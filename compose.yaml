@@ -8,6 +8,9 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./backend/scenes:/app/scenes
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
