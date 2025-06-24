@@ -1,4 +1,4 @@
-import { mkdtempSync, rmdirSync, readFileSync } from 'node:fs';
+import { mkdtempSync, rmdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawn } from 'node:child_process';
@@ -15,6 +15,22 @@ new Worker(
     const jobId = job.id;
     const temp = mkdtempSync(join(tmpdir(), 'blender-'));
     try {
+      const imageObjectKey = `${jobId}/image.jpg`;
+      const imageStream = await client.getObject(MINIO_BUCKET_NAME,imageObjectKey);
+
+      const imagePath = join(temp, 'image.jpg');
+
+      const imageBuffers = [];
+
+      // node.js readable streams implement the async iterator protocol
+      for await (const data of imageStream) {
+        imageBuffers.push(data);
+      }
+
+      const image = Buffer.concat(imageBuffers);
+      await writeFileSync(imagePath,image);
+
+
       await new Promise<void>((resolve) => {
         const pythonWorker = spawn('python', ['render_worker.py', temp], {
           stdio: 'inherit',
@@ -23,8 +39,8 @@ new Worker(
           resolve();
         });
       });
-      const path = join(temp, 'test.png');
-      const buffer = readFileSync(path);
+      const outputPath = join(temp, 'test.png');
+      const buffer = readFileSync(outputPath);
       await client.putObject(MINIO_BUCKET_NAME, `${jobId}/test.png`, buffer);
     } finally {
       rmdirSync(temp, { recursive: true });

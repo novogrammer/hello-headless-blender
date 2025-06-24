@@ -41,10 +41,10 @@ app.post('/jobs', upload.single('image'), async (req, res) => {
   }
   const jobId = makeJobId();
   const client = await clientPromise;
-  const objectKey = `${jobId}/${req.file.originalname}`;
+  const imageObjectKey = `${jobId}/image.jpg`;
   const {name} = req.body;
-  await client.putObject(MINIO_BUCKET_NAME, objectKey, req.file.buffer);
-  await jobQueue.add('mytask', { objectKey, name }, {
+  await client.putObject(MINIO_BUCKET_NAME, imageObjectKey, req.file.buffer);
+  await jobQueue.add('mytask', { imageObjectKey, name }, {
     removeOnComplete: { count: 1000 },
     jobId,
   });

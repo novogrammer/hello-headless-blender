@@ -5,19 +5,26 @@ import os
 
 
 
-def main(output_dir):
+def main(work_dir):
 
     # blender_filepath=os.path.abspath("./scenes/simple.blend")
     blender_filepath=os.path.abspath("./scenes/suzanne.blend")
 
     bpy.ops.wm.open_mainfile(filepath=blender_filepath)
 
+    mat = bpy.data.materials["MaterialSuzanne"]
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    tex_node = nodes.get("Image Texture")
+    color_filepath = os.path.join(work_dir, "image.jpg")
+    img = bpy.data.images.load(color_filepath)
+    tex_node.image = img
 
 
-    output_filepath = os.path.join(output_dir, "test.png")
+    output_filepath = os.path.join(work_dir, "test.png")
     bpy.context.scene.render.filepath = output_filepath
 
-    bpy.context.scene.render.resolution_x = 1920
+    bpy.context.scene.render.resolution_x = 1080
     bpy.context.scene.render.resolution_y = 1080
 
     # レンダーエンジン設定（'CYCLES' or 'BLENDER_EEVEE'）
@@ -36,14 +43,10 @@ def main(output_dir):
 
 
 
-# # ひとまず無限ループ
-# while True:
-#   pass
-
 if __name__ == "__main__":
     # sys.argv[0] はスクリプト名なので、最初の引数は sys.argv[1]
     if len(sys.argv) < 2:
-        print("Usage: python render_worker.py <output_dir>")
+        print("Usage: python render_worker.py <work_dir>")
         sys.exit(1)
-    _, output_dir = sys.argv
-    main(output_dir)
+    _, work_dir = sys.argv
+    main(work_dir)
