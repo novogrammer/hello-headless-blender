@@ -23,9 +23,6 @@ services:
     container_name: hello-headless-blender-worker
     image: hello-headless-blender-backend
     platform: linux/amd64
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
     volumes:
       - ./backend/scenes:/app/scenes
     restart: unless-stopped
