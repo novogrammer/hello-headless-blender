@@ -1,13 +1,13 @@
 services:
-  worker:
-    container_name: hello-headless-blender-worker
-    image: hello-headless-blender-worker
+  backend:
+    container_name: hello-headless-blender-backend
+    image: hello-headless-blender-backend
     platform: linux/amd64
     build:
-      context: ./worker
+      context: ./backend
       dockerfile: Dockerfile
     volumes:
-      - ./worker/scenes:/app/scenes
+      - ./backend/scenes:/app/scenes
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}

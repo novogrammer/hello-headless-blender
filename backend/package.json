@@ -1,5 +1,5 @@
 {
-  "name": "hello-headless-blender-worker",
+  "name": "hello-headless-blender-backend",
   "version": "1.0.0",
   "description": "",
   "type":"module",
