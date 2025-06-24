@@ -72,7 +72,10 @@ new Worker(
 
     return { result: `job ${job.id} done` };
   },
-  { connection },
+  {
+    connection,
+    concurrency: 1,
+  },
 );
 
 // TODO: backendイメージで追加する
