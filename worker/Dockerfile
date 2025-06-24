@@ -26,11 +26,11 @@ RUN python -m pip install --upgrade pip setuptools wheel
 RUN mkdir -p /app
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm ci
-
 COPY requirements.lock .
 RUN pip install -r requirements.lock
+
+COPY package.json package-lock.json ./
+RUN npm ci
 
 COPY . .
 
