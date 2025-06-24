@@ -6,14 +6,34 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    volumes:
-      - ./backend/scenes:/app/scenes
     restart: unless-stopped
     ports:
       - "4000:4000"
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    command:
+      "npm run start:express"
+    depends_on:
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+  worker:
+    container_name: hello-headless-blender-worker
+    image: hello-headless-blender-backend
+    platform: linux/amd64
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend/scenes:/app/scenes
+    restart: unless-stopped
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    command:
+      "npm run start:worker"
     depends_on:
       redis:
         condition: service_healthy
