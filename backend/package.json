@@ -5,8 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --poll src/index.ts",
+    "dev:express": "ts-node-dev --poll src/express.ts",
+    "dev:worker": "ts-node-dev --poll src/worker.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "start:express": "node dist/express.js",
+    "start:worker": "node dist/worker.js"
   },
   "keywords": [],
   "author": "Yusuke Kawamoto <novogrammer@gmail.com> (https://github.com/novogrammer/)",
