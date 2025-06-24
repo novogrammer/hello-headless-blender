@@ -20,12 +20,13 @@
     "@bull-board/express": "^6.10.1",
     "bullmq": "^5.53.2",
     "express": "^5.1.0",
-    "multer": "^1.4.5-lts.1",
     "ioredis": "^5.6.1",
-    "minio": "^8.0.5"
+    "minio": "^8.0.5",
+    "multer": "^2.0.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
+    "@types/multer": "^1.4.13",
     "@types/uuid": "^10.0.0",
     "ts-node-dev": "^2.0.0"
   }
