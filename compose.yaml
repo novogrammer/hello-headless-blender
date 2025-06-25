@@ -19,6 +19,11 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
   worker:
     container_name: hello-headless-blender-worker
     image: hello-headless-blender-backend

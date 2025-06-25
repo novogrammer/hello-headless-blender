@@ -20,11 +20,16 @@ app.use(express.json());
 const upload = multer();
 
 const serverAdapter = new ExpressAdapter();
-serverAdapter.setBasePath('/queues');
+serverAdapter.setBasePath('/admin/queues');
 createBullBoard({ queues: [new BullMQAdapter(jobQueue)], serverAdapter });
-app.use('/queues', serverAdapter.getRouter());
+app.use('/admin/queues', serverAdapter.getRouter());
 
-app.post('/jobs', upload.single('image'), async (req, res) => {
+app.get('/api/health', (_req, res) => {
+  res.sendStatus(200);
+  return;
+});
+
+app.post('/api/jobs', upload.single('image'), async (req, res) => {
   if (!req.file) {
     res.status(400).json({
       ok:false,
