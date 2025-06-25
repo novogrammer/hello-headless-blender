@@ -27,7 +27,7 @@ export default function Home() {
       <h1 className={styles["page"]}>Title</h1>
       <form onSubmit={handleSubmit} className={styles["page__form"]}>
         <input type="text" name="name" placeholder="name" required />
-        <input type="file" name="image" accept="image/*" required />
+        <input type="file" name="image" accept="image/jpeg" required />
         <button type="submit">submit</button>
       </form>
       {jobId && (
