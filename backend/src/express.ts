@@ -36,8 +36,11 @@ app.get('/api/jobs/:id/events', async (req, res) => {
     Connection: 'keep-alive',
   });
 
-  function sendAndClose(state: string) {
+  function send(state: string) {
     res.write(`data: ${JSON.stringify({ jobId: id, state })}\n\n`);
+  }
+
+  function close() {
     res.write('data: [DONE]\n\n');
     setTimeout(() => {
       res.end();
@@ -46,35 +49,55 @@ app.get('/api/jobs/:id/events', async (req, res) => {
 
   const job = await jobQueue.getJob(id);
   if (!job) {
-    sendAndClose('not_found');
+    send('not_found');
+    close();
     return;
   }
 
   const state = await job.getState();
+  send(state);
+
   if (state === 'completed' || state === 'failed') {
-    sendAndClose(state);
+    close();
     return;
   }
 
+  const onWaiting = ({ jobId }: { jobId: string }) => {
+    if (jobId === id) {
+      send('waiting');
+    }
+  };
+  const onActive = ({ jobId }: { jobId: string }) => {
+    if (jobId === id) {
+      send('active');
+    }
+  };
   const onCompleted = ({ jobId }: { jobId: string }) => {
     if (jobId === id) {
       cleanup();
-      sendAndClose('completed');
+      send('completed');
+      close();
     }
   };
   const onFailed = ({ jobId }: { jobId: string }) => {
     if (jobId === id) {
       cleanup();
-      sendAndClose('failed');
+      send('failed');
+      close();
     }
   };
+
   const cleanup = () => {
+    queueEvents.off('waiting', onWaiting);
+    queueEvents.off('active', onActive);
     queueEvents.off('completed', onCompleted);
     queueEvents.off('failed', onFailed);
   };
 
   res.on('close', cleanup);
 
+  queueEvents.on('waiting', onWaiting);
+  queueEvents.on('active', onActive);
   queueEvents.on('completed', onCompleted);
   queueEvents.on('failed', onFailed);
 });
