@@ -1,4 +1,21 @@
 services:
+  next-app:
+    container_name: hello-headless-blender-next-app
+    image: hello-headless-blender-next-app
+    build:
+      context: ./next-app
+      dockerfile: Dockerfile
+
+    # Set environment variables directly in the compose file
+    # environment:
+    #   NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
+
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    depends_on:
+      backend:
+        condition: service_healthy
   backend:
     container_name: hello-headless-blender-backend
     image: hello-headless-blender-backend
