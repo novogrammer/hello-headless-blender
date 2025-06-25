@@ -30,11 +30,12 @@ app.use('/admin/queues', serverAdapter.getRouter());
 
 app.get('/api/jobs/:id/events', async (req, res) => {
   const { id } = req.params;
-  res.set({
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    Connection: 'keep-alive',
-  });
+  // SSE ヘッダ
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  // gzip圧縮させない
+  res.setHeader('Content-Encoding', 'none');
 
   function send(state: string) {
     res.write(`data: ${JSON.stringify({ jobId: id, state })}\n\n`);
