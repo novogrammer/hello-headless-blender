@@ -42,6 +42,9 @@ new Worker(
       const outputPath = join(temp, 'test.png');
       const buffer = readFileSync(outputPath);
       await client.putObject(MINIO_BUCKET_NAME, `${jobId}/test.png`, buffer);
+    } catch (e) {
+      const error = e instanceof Error ? e.message : 'unknown';
+      throw e;
     } finally {
       rmdirSync(temp, { recursive: true });
     }
