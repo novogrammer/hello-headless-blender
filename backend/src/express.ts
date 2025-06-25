@@ -4,7 +4,7 @@ import { clientPromise, MINIO_BUCKET_NAME } from './minio.js';
 import { ExpressAdapter } from '@bull-board/express';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { Queue } from 'bullmq';
+import { Queue, QueueEvents } from 'bullmq';
 import { connection } from './redis-connection.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,6 +13,10 @@ function makeJobId() {
 }
 
 const jobQueue = new Queue('job_queue', { connection });
+const queueEvents = new QueueEvents('job_queue', { connection });
+queueEvents.waitUntilReady().catch((err) => {
+  console.error('QueueEvents connection error', err);
+});
 
 
 const app = express();
@@ -31,13 +35,48 @@ app.get('/api/jobs/:id/events', async (req, res) => {
     'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
   });
+
+  function sendAndClose(state: string) {
+    res.write(`data: ${JSON.stringify({ jobId: id, state })}\n\n`);
+    res.write('data: [DONE]\n\n');
+    setTimeout(() => {
+      res.end();
+    }, 1000);
+  }
+
   const job = await jobQueue.getJob(id);
-  const state = job ? await job.getState() : 'not_found';
-  res.write(`data: ${JSON.stringify({ jobId: id, state })}\n\n`);
-  res.write('data: [DONE]\n\n');
-  setTimeout(() => {
-    res.end();
-  }, 1000);
+  if (!job) {
+    sendAndClose('not_found');
+    return;
+  }
+
+  const state = await job.getState();
+  if (state === 'completed' || state === 'failed') {
+    sendAndClose(state);
+    return;
+  }
+
+  const onCompleted = ({ jobId }: { jobId: string }) => {
+    if (jobId === id) {
+      cleanup();
+      sendAndClose('completed');
+    }
+  };
+  const onFailed = ({ jobId }: { jobId: string }) => {
+    if (jobId === id) {
+      cleanup();
+      sendAndClose('failed');
+    }
+  };
+  const cleanup = () => {
+    queueEvents.off('completed', onCompleted);
+    queueEvents.off('failed', onFailed);
+  };
+
+  res.on('close', cleanup);
+
+  queueEvents.on('completed', onCompleted);
+  queueEvents.on('failed', onFailed);
 });
 
 app.get('/api/jobs/:id', async (req, res) => {
