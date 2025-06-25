@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
+import type { PageProps } from "next";
 
-export default function JobPage({ params }: { params: { jobId: string } }) {
+export default function JobPage({ params }: PageProps<{ jobId: string }>) {
   const { jobId } = params;
   const [state, setState] = useState<string>("unknown");
 
