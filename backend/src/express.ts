@@ -31,16 +31,17 @@ app.get('/api/jobs/:id/events', async (req, res) => {
     'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
   });
-  const subscriber = connection.duplicate();
-  await subscriber.connect();
-  await subscriber.subscribe(`job:${id}`);
-  subscriber.on('message', (_channel, message) => {
-    res.write(`data: ${message}\n\n`);
-  });
-  req.on('close', async () => {
-    await subscriber.unsubscribe(`job:${id}`);
-    subscriber.disconnect();
-  });
+  const job = await jobQueue.getJob(id);
+  const state = job ? await job.getState() : 'not_found';
+  res.write(`data: ${JSON.stringify({ jobId: id, state })}\n\n`);
+  res.end();
+});
+
+app.get('/api/jobs/:id', async (req, res) => {
+  const { id } = req.params;
+  const job = await jobQueue.getJob(id);
+  const state = job ? await job.getState() : 'not_found';
+  res.json({ jobId: id, state });
 });
 
 app.get('/api/jobs/:id/result', async (req, res) => {
@@ -84,7 +85,6 @@ app.post('/api/jobs', upload.single('image'), async (req, res) => {
     removeOnComplete: { count: 1000 },
     jobId,
   });
-  await connection.publish(`job:${jobId}`, JSON.stringify({ progress: 0 }));
   res.json({
     ok:true,
     jobId,
