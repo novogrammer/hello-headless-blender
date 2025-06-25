@@ -44,9 +44,13 @@ export default function JobPage({ params }: Props) {
     <div>
       <h1>Job {jobId}</h1>
       <p>State: {state}</p>
-      {state === "completed" && (
+      {state === "completed" ? (
         <div>
           <img src={`/api/jobs/${jobId}/result`} alt="result" />
+        </div>
+      ):(
+        <div>
+          Now Rendering...
         </div>
       )}
     </div>
