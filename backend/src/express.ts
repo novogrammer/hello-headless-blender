@@ -34,7 +34,10 @@ app.get('/api/jobs/:id/events', async (req, res) => {
   const job = await jobQueue.getJob(id);
   const state = job ? await job.getState() : 'not_found';
   res.write(`data: ${JSON.stringify({ jobId: id, state })}\n\n`);
-  res.end();
+  setTimeout(() => {
+    res.write('data: [DONE]\n\n');
+    res.end();
+  }, 1000);
 });
 
 app.get('/api/jobs/:id', async (req, res) => {

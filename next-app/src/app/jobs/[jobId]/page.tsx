@@ -8,6 +8,10 @@ export default function JobPage({ params }: { params: { jobId: string } }) {
   useEffect(() => {
     const es = new EventSource(`/api/jobs/${jobId}/events`);
     es.onmessage = (ev) => {
+      if (ev.data === "[DONE]") {
+        es.close();
+        return;
+      }
       try {
         const data = JSON.parse(ev.data);
         if (data.state) {
@@ -15,8 +19,6 @@ export default function JobPage({ params }: { params: { jobId: string } }) {
         }
       } catch (e) {
         console.error(e);
-      } finally {
-        es.close();
       }
     };
     return () => {
