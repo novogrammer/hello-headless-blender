@@ -21,7 +21,7 @@ def main(work_dir):
     tex_node.image = img
 
 
-    output_filepath = os.path.join(work_dir, "test.png")
+    output_filepath = os.path.join(work_dir, "result.png")
     bpy.context.scene.render.filepath = output_filepath
 
     bpy.context.scene.render.resolution_x = 1080

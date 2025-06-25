@@ -39,9 +39,9 @@ new Worker(
           resolve();
         });
       });
-      const outputPath = join(temp, 'test.png');
+      const outputPath = join(temp, 'result.png');
       const buffer = readFileSync(outputPath);
-      await client.putObject(MINIO_BUCKET_NAME, `${jobId}/test.png`, buffer);
+      await client.putObject(MINIO_BUCKET_NAME, `${jobId}/result.png`, buffer);
     } catch (e) {
       const error = e instanceof Error ? e.message : 'unknown';
       throw e;

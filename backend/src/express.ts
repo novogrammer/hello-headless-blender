@@ -114,7 +114,7 @@ app.get('/api/jobs/:id/result', async (req, res) => {
   const { id } = req.params;
   const client = await clientPromise;
   try {
-    const obj = await client.getObject(MINIO_BUCKET_NAME, `${id}/test.png`);
+    const obj = await client.getObject(MINIO_BUCKET_NAME, `${id}/result.png`);
     res.set('Content-Type', 'image/png');
     obj.pipe(res);
   } catch {
