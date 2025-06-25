@@ -13,6 +13,7 @@ new Worker(
     console.time('task');
     const client = await clientPromise;
     const jobId = job.id;
+    await connection.publish(`job:${jobId}`, JSON.stringify({ progress: 0 }));
     const temp = mkdtempSync(join(tmpdir(), 'blender-'));
     try {
       const imageObjectKey = `${jobId}/image.jpg`;
@@ -42,6 +43,20 @@ new Worker(
       const outputPath = join(temp, 'test.png');
       const buffer = readFileSync(outputPath);
       await client.putObject(MINIO_BUCKET_NAME, `${jobId}/test.png`, buffer);
+      await connection.publish(
+        `job:${jobId}`,
+        JSON.stringify({
+          progress: 100,
+          resultUrl: `/api/jobs/${jobId}/result`,
+        })
+      );
+    } catch (e) {
+      const error = e instanceof Error ? e.message : 'unknown';
+      await connection.publish(
+        `job:${jobId}`,
+        JSON.stringify({ progress: -1, error })
+      );
+      throw e;
     } finally {
       rmdirSync(temp, { recursive: true });
     }

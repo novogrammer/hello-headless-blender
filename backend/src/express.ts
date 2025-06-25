@@ -24,6 +24,37 @@ serverAdapter.setBasePath('/admin/queues');
 createBullBoard({ queues: [new BullMQAdapter(jobQueue)], serverAdapter });
 app.use('/admin/queues', serverAdapter.getRouter());
 
+app.get('/api/jobs/:id/events', async (req, res) => {
+  const { id } = req.params;
+  res.set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+  });
+  const subscriber = connection.duplicate();
+  await subscriber.connect();
+  await subscriber.subscribe(`job:${id}`);
+  subscriber.on('message', (_channel, message) => {
+    res.write(`data: ${message}\n\n`);
+  });
+  req.on('close', async () => {
+    await subscriber.unsubscribe(`job:${id}`);
+    subscriber.disconnect();
+  });
+});
+
+app.get('/api/jobs/:id/result', async (req, res) => {
+  const { id } = req.params;
+  const client = await clientPromise;
+  try {
+    const obj = await client.getObject(MINIO_BUCKET_NAME, `${id}/test.png`);
+    res.set('Content-Type', 'image/png');
+    obj.pipe(res);
+  } catch {
+    res.sendStatus(404);
+  }
+});
+
 app.get('/api/health', (_req, res) => {
   res.sendStatus(200);
   return;
@@ -53,6 +84,7 @@ app.post('/api/jobs', upload.single('image'), async (req, res) => {
     removeOnComplete: { count: 1000 },
     jobId,
   });
+  await connection.publish(`job:${jobId}`, JSON.stringify({ progress: 0 }));
   res.json({
     ok:true,
     jobId,
