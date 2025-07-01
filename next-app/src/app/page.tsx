@@ -1,11 +1,22 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./page.module.scss";
 
 export default function Home() {
   const [jobId, setJobId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [jobs, setJobs] = useState<{ jobId: string; state: string }[]>([]);
 
+  useEffect(() => {
+    async function fetchJobs() {
+      const res = await fetch("/api/jobs");
+      if (res.ok) {
+        const data = await res.json();
+        setJobs(data.jobs as { jobId: string; state: string }[]);
+      }
+    }
+    fetchJobs();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -37,6 +48,16 @@ export default function Home() {
         </p>
       )}
       {error && <p>{error}</p>}
+      <p>
+        <a href="/jobs">All Jobs</a>
+      </p>
+      <ul>
+        {jobs.map((job) => (
+          <li key={job.jobId}>
+            <a href={`/jobs/${job.jobId}`}>{job.jobId}</a> - {job.state}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
