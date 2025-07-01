@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import styles from "./page.module.scss";
 
 export default function Home() {
@@ -27,7 +28,7 @@ export default function Home() {
     <div className={styles["page"]}>
       <h1 className={styles["page"]}>Title</h1>
       <p>
-        <a href="/jobs">All Jobs</a>
+        <Link href="/jobs">All Jobs</Link>
       </p>
       <form onSubmit={handleSubmit} className={styles["page__form"]}>
         <input type="text" name="name" placeholder="name" required />
@@ -36,7 +37,7 @@ export default function Home() {
       </form>
       {jobId && (
         <p>
-          JobId: <a href={`/jobs/${jobId}`}>{jobId}</a>
+          JobId: <Link href={`/jobs/${jobId}`}>{jobId}</Link>
         </p>
       )}
       {error && <p>{error}</p>}

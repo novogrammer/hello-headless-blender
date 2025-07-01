@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<{ jobId: string; state: string }[]>([]);
@@ -21,7 +22,7 @@ export default function JobsPage() {
       <ul>
         {jobs.map((job) => (
           <li key={job.jobId}>
-            <a href={`/jobs/${job.jobId}`}>{job.jobId}</a> - {job.state}
+            <Link href={`/jobs/${job.jobId}`}>{job.jobId}</Link> - {job.state}
           </li>
         ))}
       </ul>
