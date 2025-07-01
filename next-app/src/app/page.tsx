@@ -37,6 +37,9 @@ export default function Home() {
   return (
     <div className={styles["page"]}>
       <h1 className={styles["page"]}>Title</h1>
+      <p>
+        <a href="/jobs">All Jobs</a>
+      </p>
       <form onSubmit={handleSubmit} className={styles["page__form"]}>
         <input type="text" name="name" placeholder="name" required />
         <input type="file" name="image" accept="image/jpeg" required />
@@ -48,9 +51,6 @@ export default function Home() {
         </p>
       )}
       {error && <p>{error}</p>}
-      <p>
-        <a href="/jobs">All Jobs</a>
-      </p>
       <ul>
         {jobs.map((job) => (
           <li key={job.jobId}>
