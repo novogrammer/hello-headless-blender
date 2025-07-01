@@ -20,18 +20,27 @@ def main(work_dir):
     img = bpy.data.images.load(color_filepath)
     tex_node.image = img
 
+    bpy.context.scene.render.image_settings.file_format = 'FFMPEG'
+    bpy.context.scene.render.ffmpeg.format = 'MPEG4'
+    bpy.context.scene.render.ffmpeg.codec = 'H264'
 
-    output_filepath = os.path.join(work_dir, "result.png")
+    # output_filepath = os.path.join(work_dir, "result.png")
+    output_filepath = os.path.join(work_dir, "result.mp4")
     bpy.context.scene.render.filepath = output_filepath
 
-    bpy.context.scene.render.resolution_x = 1080
-    bpy.context.scene.render.resolution_y = 1080
+    # bpy.context.scene.render.resolution_x = 1080
+    # bpy.context.scene.render.resolution_y = 1080
+    bpy.context.scene.render.resolution_x = 256
+    bpy.context.scene.render.resolution_y = 256
 
-    # レンダーエンジン設定（'CYCLES' or 'BLENDER_EEVEE'）
-    bpy.context.scene.render.engine = 'CYCLES'
+    # レンダーエンジン設定（'CYCLES' or 'BLENDER_EEVEE_NEXT'）
+    # bpy.context.scene.render.engine = 'CYCLES'
+    bpy.context.scene.render.engine = 'BLENDER_EEVEE_NEXT'
 
     # 実際のレンダリング実行
-    result=bpy.ops.render.render(write_still=True)
+    # result=bpy.ops.render.render(write_still=True)
+    result=bpy.ops.render.render(write_still=True,animation=True)
+    
     print("Rendered to:", bpy.context.scene.render.filepath)
 
 

@@ -46,7 +46,8 @@ export default function JobPage({ params }: Props) {
       <p>State: {state}</p>
       {state === "completed" ? (
         <div>
-          <img src={`/api/jobs/${jobId}/result`} alt="result" />
+          <video src={`/api/jobs/${jobId}/result`} playsInline autoPlay muted loop controls></video>
+          {/* <img src={`/api/jobs/${jobId}/result`} alt="result" /> */}
         </div>
       ):(
         <div>

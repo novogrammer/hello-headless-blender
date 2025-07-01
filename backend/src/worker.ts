@@ -39,9 +39,9 @@ new Worker(
           resolve();
         });
       });
-      const outputPath = join(temp, 'result.png');
+      const outputPath = join(temp, 'result.mp4');
       const buffer = readFileSync(outputPath);
-      await client.putObject(MINIO_BUCKET_NAME, `${jobId}/result.png`, buffer);
+      await client.putObject(MINIO_BUCKET_NAME, `${jobId}/result.mp4`, buffer);
     } catch (e) {
       const error = e instanceof Error ? e.message : 'unknown';
       throw e;
