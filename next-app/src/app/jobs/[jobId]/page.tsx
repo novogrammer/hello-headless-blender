@@ -9,6 +9,7 @@ interface Props {
 export default function JobPage({ params }: Props) {
   const [jobId, setJobId] = useState<string>("");
   const [state, setState] = useState<string>("unknown");
+  const [progress, setProgress] = useState<number|null>(null);
 
   useEffect(() => {
     params.then((p) => {
@@ -26,6 +27,8 @@ export default function JobPage({ params }: Props) {
         es.close();
         return;
       }
+    };
+    es.addEventListener("state",(ev)=>{
       try {
         const data = JSON.parse(ev.data);
         if (data.state) {
@@ -34,7 +37,17 @@ export default function JobPage({ params }: Props) {
       } catch (e) {
         console.error(e);
       }
-    };
+    })
+    es.addEventListener("progress",(ev)=>{
+      try {
+        const data = JSON.parse(ev.data);
+        if (data.progress) {
+          setProgress(data.progress as number);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    })
     return () => {
       es.close();
     };
@@ -44,6 +57,7 @@ export default function JobPage({ params }: Props) {
     <div>
       <h1>Job {jobId}</h1>
       <p>State: {state}</p>
+      <p>Progress: {progress===null?"?": Math.floor(progress)}%</p>
       {state === "completed" ? (
         <div>
           <video src={`/api/jobs/${jobId}/result`} playsInline autoPlay muted loop controls></video>

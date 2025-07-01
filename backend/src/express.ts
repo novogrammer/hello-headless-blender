@@ -37,9 +37,15 @@ app.get('/api/jobs/:id/events', async (req, res) => {
   // gzip圧縮させない
   res.setHeader('Content-Encoding', 'none');
 
-  function send(state: string) {
+  function sendState(state: string) {
+    res.write(`event: state\n`);
     res.write(`data: ${JSON.stringify({ jobId: id, state })}\n\n`);
   }
+  function sendProgress(progress:number) {
+    res.write(`event: progress\n`);
+    res.write(`data: ${JSON.stringify({ jobId: id, progress })}\n\n`);
+  }
+  
 
   function close() {
     res.write('data: [DONE]\n\n');
@@ -50,13 +56,13 @@ app.get('/api/jobs/:id/events', async (req, res) => {
 
   const job = await jobQueue.getJob(id);
   if (!job) {
-    send('not_found');
+    sendState('not_found');
     close();
     return;
   }
 
   const state = await job.getState();
-  send(state);
+  sendState(state);
 
   if (state === 'completed' || state === 'failed') {
     close();
@@ -65,30 +71,40 @@ app.get('/api/jobs/:id/events', async (req, res) => {
 
   const onWaiting = ({ jobId }: { jobId: string }) => {
     if (jobId === id) {
-      send('waiting');
+      sendState('waiting');
     }
   };
   const onActive = ({ jobId }: { jobId: string }) => {
     if (jobId === id) {
-      send('active');
+      sendState('active');
     }
   };
   const onCompleted = ({ jobId }: { jobId: string }) => {
     if (jobId === id) {
       cleanup();
-      send('completed');
+      sendState('completed');
       close();
     }
   };
   const onFailed = ({ jobId }: { jobId: string }) => {
     if (jobId === id) {
       cleanup();
-      send('failed');
+      sendState('failed');
       close();
     }
   };
+  const onProgress = ({ jobId, data }:{jobId: string,data:number|Object}) => {
+    if(typeof data !== "number" ){
+      console.error("typeof data is not number");
+      return;
+    }
+    console.log(`Job ${jobId} progress: ${data}%`);
+    sendProgress(data);
+  };
 
   const cleanup = () => {
+
+    queueEvents.off('progress', onProgress);
     queueEvents.off('waiting', onWaiting);
     queueEvents.off('active', onActive);
     queueEvents.off('completed', onCompleted);
@@ -97,6 +113,7 @@ app.get('/api/jobs/:id/events', async (req, res) => {
 
   res.on('close', cleanup);
 
+  queueEvents.on('progress', onProgress);
   queueEvents.on('waiting', onWaiting);
   queueEvents.on('active', onActive);
   queueEvents.on('completed', onCompleted);
@@ -149,6 +166,11 @@ app.post('/api/jobs', upload.single('image'), async (req, res) => {
   const {name} = req.body;
   await client.putObject(MINIO_BUCKET_NAME, imageObjectKey, req.file.buffer);
   await jobQueue.add('mytask', { imageObjectKey, name }, {
+    attempts:5,
+    backoff: {
+      type: 'exponential',
+      delay: 5000,
+    },
     removeOnComplete: { count: 1000 },
     jobId,
   });

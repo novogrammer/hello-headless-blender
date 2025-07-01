@@ -37,11 +37,15 @@ def main(work_dir):
     # bpy.context.scene.render.engine = 'CYCLES'
     bpy.context.scene.render.engine = 'BLENDER_EEVEE_NEXT'
 
+    frame_start = bpy.context.scene.frame_start
+    frame_end = bpy.context.scene.frame_end
+    print(f"Render Animation frame_start:{frame_start} frame_end:{frame_end}",flush=True)
+
     # 実際のレンダリング実行
     # result=bpy.ops.render.render(write_still=True)
     result=bpy.ops.render.render(write_still=True,animation=True)
     
-    print("Rendered to:", bpy.context.scene.render.filepath)
+    print("Rendered to:", bpy.context.scene.render.filepath,flush=True)
 
 
     # exit code で結果を返す
