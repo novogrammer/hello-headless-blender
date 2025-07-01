@@ -120,6 +120,20 @@ app.get('/api/jobs/:id/events', async (req, res) => {
   queueEvents.on('failed', onFailed);
 });
 
+app.get('/api/jobs', async (_req, res) => {
+  const jobs = await jobQueue.getJobs([
+    'waiting',
+    'active',
+    'completed',
+    'failed',
+    'delayed',
+  ]);
+  const jobInfos = await Promise.all(
+    jobs.map(async (job) => ({ jobId: job.id, state: await job.getState() }))
+  );
+  res.json({ jobs: jobInfos });
+});
+
 app.get('/api/jobs/:id', async (req, res) => {
   const { id } = req.params;
   const job = await jobQueue.getJob(id);
